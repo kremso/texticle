@@ -12,14 +12,14 @@ you to declare full text indexes.  Texticle will extend ActiveRecord with
 named_scope methods making searching easy and fun!}
   s.email = ["aaronp@rubyforge.org"]
   s.extra_rdoc_files = ["Manifest.txt", "CHANGELOG.rdoc", "README.rdoc"]
-  s.files = [".autotest", "CHANGELOG.rdoc", "Manifest.txt", "README.rdoc", "Rakefile", "lib/texticle.rb", "lib/texticle/full_text_index.rb", "lib/texticle/railtie.rb", "lib/texticle/tasks.rb", "rails/init.rb", "test/helper.rb", "test/test_full_text_index.rb", "test/test_texticle.rb"]
+  s.files = [".autotest", "CHANGELOG.rdoc", "Manifest.txt", "README.rdoc", "Rakefile", "lib/texticle.rb", "lib/texticle/index.rb", "lib/texticle/full_text_index.rb",  "lib/texticle/trigram_index.rb", "lib/texticle/railtie.rb", "lib/texticle/tasks.rb", "rails/init.rb", "test/helper.rb", "test/test_full_text_index.rb",  "test/test_trigram_index.rb", "test/test_texticle.rb"]
   s.homepage = %q{http://texticle.rubyforge.org/}
   s.rdoc_options = ["--main", "README.rdoc"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{texticle}
   s.rubygems_version = %q{1.3.7}
   s.summary = %q{Texticle exposes full text search capabilities from PostgreSQL, and allows you to declare full text indexes}
-  s.test_files = ["test/test_full_text_index.rb", "test/test_texticle.rb"]
+  s.test_files = ["test/test_full_text_index.rb", "test/test_trigram_index.rb", "test/test_texticle.rb"]
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION

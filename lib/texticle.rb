@@ -1,4 +1,6 @@
+require 'texticle/index'
 require 'texticle/full_text_index'
+require 'texticle/trigram_index'
 require 'texticle/railtie' if defined?(Rails) and Rails::VERSION::MAJOR > 2
 
 ####
@@ -54,7 +56,7 @@ module Texticle
   end
 
   # A list of full text indexes
-  attr_accessor :full_text_indexes
+  attr_accessor :full_text_indexes, :trigram_indexes
 
   ###
   # Create an index with +name+ using +dictionary+
@@ -81,15 +83,36 @@ module Texticle
       }
     }
 
+    class_eval do
+      # Trying to avoid the deprecation warning when using :named_scope
+      # that Rails 3 emits. Can't use #respond_to?(:scope) since scope
+      # is a protected method in Rails 2, and thus still returns true.
+      if self.respond_to?(:scope) and not protected_methods.include?('scope')
+        scope search_name.to_sym, scope_lamba
+      elsif self.respond_to? :named_scope
+        named_scope search_name.to_sym, scope_lamba
+      end
+    end
+  end
+
+  ###
+  # Create an trigram index with +name+ using +type+
+  def trigram_index name = nil, type = 'GIN', &block
+    search_name = ['tsearch', name].compact.join('_')
+    index_name  = [table_name, name, 'trgm_idx'].compact.join('_')
+    this_index  = TrigramIndex.new(index_name, type, self, &block)
+
+    (self.trigram_indexes ||= []) << this_index
+
     # tsearch, i.e. trigram search
     trigram_scope_lambda = lambda { |term|
       term = "'#{term.gsub("'", "''")}'" # " because emacs ruby-mode is totally confused by this line
 
-      similarities = this_index.index_columns.values.flatten.inject([]) do |array, index|
+      similarities = this_index.index_columns.flatten.inject([]) do |array, index|
         array << "similarity(#{index}, #{term})"
       end.join(" + ")
 
-      conditions = this_index.index_columns.values.flatten.inject([]) do |array, index|
+      conditions = this_index.index_columns.flatten.inject([]) do |array, index|
         array << "(#{index} % #{term})"
       end.join(" OR ")
 
@@ -105,11 +128,9 @@ module Texticle
       # that Rails 3 emits. Can't use #respond_to?(:scope) since scope
       # is a protected method in Rails 2, and thus still returns true.
       if self.respond_to?(:scope) and not protected_methods.include?('scope')
-        scope search_name.to_sym, scope_lamba
-        scope(('t' + search_name).to_sym, trigram_scope_lambda)
+        scope(search_name.to_sym, trigram_scope_lambda)
       elsif self.respond_to? :named_scope
-        named_scope search_name.to_sym, scope_lamba
-        named_scope(('t' + search_name).to_sym, trigram_scope_lambda)
+        named_scope(search_name.to_sym, trigram_scope_lambda)
       end
     end
   end

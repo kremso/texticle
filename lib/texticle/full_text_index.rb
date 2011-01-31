@@ -1,7 +1,5 @@
 module Texticle
-  class FullTextIndex # :nodoc:
-    attr_accessor :index_columns
-
+  class FullTextIndex < Texticle::Index # :nodoc:
     def initialize name, dictionary, model_class, &block
       @name           = name
       @dictionary     = dictionary
@@ -9,18 +7,6 @@ module Texticle
       @index_columns  = {}
       @string         = nil
       instance_eval(&block)
-    end
-
-    def self.find_constant_of(filename)
-      File.basename(filename, '.rb').pluralize.classify.constantize
-    end
-
-    def create
-      @model_class.connection.execute create_sql
-    end
-
-    def destroy
-      @model_class.connection.execute destroy_sql
     end
 
     def create_sql

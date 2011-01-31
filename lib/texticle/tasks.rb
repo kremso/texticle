@@ -2,26 +2,26 @@ require 'rake'
 require 'texticle'
 
 namespace :texticle do
-  desc "Create full text index migration"
+  desc "Create full text and trigram index migration"
   task :migration => :environment do
     now = Time.now.utc
-    filename = "#{now.strftime('%Y%m%d%H%M%S')}_full_text_search_#{now.to_i}.rb"
+    filename = "#{now.strftime('%Y%m%d%H%M%S')}_text_search_#{now.to_i}.rb"
     File.open(Rails.root + 'db' + 'migrate' + filename, 'wb') do |fh|
       up_sql_statements = []
       dn_sql_statements = []
 
       Dir[Rails.root + 'app' + 'models' + '*.rb'].each do |f|
         klass = Texticle::FullTextIndex.find_constant_of(f)
-        if klass.respond_to?(:full_text_indexes)
-          (klass.full_text_indexes || []).each do |fti|
-            up_sql_statements << fti.destroy_sql
-            up_sql_statements << fti.create_sql
-            dn_sql_statements << fti.destroy_sql
+        if klass.respond_to?(:full_text_indexes) or klass.respond_to?(:trigram_indexes)
+          ((klass.full_text_indexes || []) + (klass.trigram_indexes || [])).each do |idx|
+            up_sql_statements << idx.destroy_sql
+            up_sql_statements << idx.create_sql
+            dn_sql_statements << idx.destroy_sql
           end
         end
       end
 
-      fh.puts "class FullTextSearch#{now.to_i} < ActiveRecord::Migration"
+      fh.puts "class TextSearch#{now.to_i} < ActiveRecord::Migration"
       fh.puts "  def self.up"
       insert_sql_statements_into_migration_file(up_sql_statements, fh)
       fh.puts "  end"
@@ -38,10 +38,10 @@ namespace :texticle do
   task :create_indexes => ['texticle:destroy_indexes'] do
     Dir[Rails.root + 'app' + 'models' + '*.rb'].each do |f|
       klass = Texticle::FullTextIndex.find_constant_of(f)
-      if klass.respond_to?(:full_text_indexes)
-        (klass.full_text_indexes || []).each do |fti|
+      if klass.respond_to?(:full_text_indexes) or klass.respond_to(:trigram_indexes)
+        (klass.full_text_indexes || [] + klass.trigram_indexes || []).each do |idx|
           begin
-            fti.create
+            idx.create
           rescue ActiveRecord::StatementInvalid => e
             warn "WARNING: Couldn't create index for #{klass.to_s}, skipping..."
           end
@@ -54,9 +54,9 @@ namespace :texticle do
   task :destroy_indexes => [:environment] do
     Dir[Rails.root + 'app' + 'models' + '*.rb'].each do |f|
       klass = Texticle::FullTextIndex.find_constant_of(f)
-      if klass.respond_to?(:full_text_indexes)
-        (klass.full_text_indexes || []).each do |fti|
-          fti.destroy
+      if klass.respond_to?(:full_text_indexes) or klass.respond_to?(:trigram_indexes)
+        (klass.full_text_indexes || [] + klass.trigram_indexes || []).each do |idx|
+          idx.destroy
         end
       end
     end

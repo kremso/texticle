@@ -64,10 +64,18 @@ Since it's an optional module, first step is to install it into the current data
 
 If you installed Postgres with its optional 'contrib' modules, you should be safe.
 
-Declare your indexes as you normally would:
+Declare your trigram indexes similarly as you would declare fulltext indexes
 
 	class Book < ActiveRecord::Base
-		index { title }
+		trigram_index { title }
+	end
+
+Texticle creates trigram index on the specified columns, using GIN index. You may override the index by specifying the index type:
+
+	class Book < ActiveRecord::Base
+		trigram_index 'name', 'GIST' do
+			name
+		end
 	end
 	
 Finally, say hello to #tsearch:
