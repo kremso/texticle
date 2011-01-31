@@ -12,8 +12,8 @@ namespace :texticle do
 
       Dir[Rails.root + 'app' + 'models' + '*.rb'].each do |f|
         klass = Texticle::FullTextIndex.find_constant_of(f)
-        if klass.respond_to?(:full_text_indexes) or klass.respond_to?(:trigram_indexes)
-          ((klass.full_text_indexes || []) + (klass.trigram_indexes || [])).each do |idx|
+        if klass.respond_to?(:texticle_indexes)
+          (klass.texticle_indexes).each do |idx|
             up_sql_statements << idx.destroy_sql
             up_sql_statements << idx.create_sql
             dn_sql_statements << idx.destroy_sql
@@ -38,8 +38,8 @@ namespace :texticle do
   task :create_indexes => ['texticle:destroy_indexes'] do
     Dir[Rails.root + 'app' + 'models' + '*.rb'].each do |f|
       klass = Texticle::FullTextIndex.find_constant_of(f)
-      if klass.respond_to?(:full_text_indexes) or klass.respond_to(:trigram_indexes)
-        (klass.full_text_indexes || [] + klass.trigram_indexes || []).each do |idx|
+      if klass.respond_to?(:texticle_indexes)
+        (klass.texticle_indexes).each do |idx|
           begin
             idx.create
           rescue ActiveRecord::StatementInvalid => e
@@ -54,8 +54,8 @@ namespace :texticle do
   task :destroy_indexes => [:environment] do
     Dir[Rails.root + 'app' + 'models' + '*.rb'].each do |f|
       klass = Texticle::FullTextIndex.find_constant_of(f)
-      if klass.respond_to?(:full_text_indexes) or klass.respond_to?(:trigram_indexes)
-        (klass.full_text_indexes || [] + klass.trigram_indexes || []).each do |idx|
+      if klass.respond_to?(:texticle_indexes)
+        (klass.texticle_indexes).each do |idx|
           idx.destroy
         end
       end
