@@ -37,7 +37,7 @@ class TestTexticle < TexticleTestCase
     x = fake_model
     x.class_eval do
       extend Texticle
-      index('awesome') do
+      index :name => 'awesome' do
         name
       end
     end
@@ -53,7 +53,7 @@ class TestTexticle < TexticleTestCase
     x = fake_model
     x.class_eval do
       extend Texticle
-      trigram_index('awesome') do
+      trigram_index :name => 'awesome' do
         name
       end
     end
@@ -69,7 +69,7 @@ class TestTexticle < TexticleTestCase
     x = fake_model
     x.class_eval do
       extend Texticle
-      index('awesome') do
+      index :name => 'awesome' do
         name
       end
     end
@@ -81,7 +81,7 @@ class TestTexticle < TexticleTestCase
     x = fake_model
     x.class_eval do
       extend Texticle
-      index('awesome') do
+      index :name => 'awesome'  do
         name
       end
     end
@@ -94,7 +94,7 @@ class TestTexticle < TexticleTestCase
     x = fake_model
     x.class_eval do
       extend Texticle
-      index('awesome') do
+      index :name => 'awesome' do
         name
       end
     end
@@ -107,7 +107,7 @@ class TestTexticle < TexticleTestCase
     x = fake_model
     x.class_eval do
       extend Texticle
-      index('awesome', 'spanish') do
+      index :name => 'awesome', :dictionary => 'spanish' do
         name
       end
     end
@@ -121,7 +121,7 @@ class TestTexticle < TexticleTestCase
     x = fake_model
     x.class_eval do
       extend Texticle
-      trigram_index('awesome', 'GIST') do
+      trigram_index :name => 'awesome', :type => 'GIST' do
         name
       end
     end
@@ -135,7 +135,7 @@ class TestTexticle < TexticleTestCase
     x = fake_model
     x.class_eval do
       extend Texticle
-      index('awesome', 'spanish') do
+      index :name => 'awesome', :dictionary => 'spanish' do
         name
       end
     end
@@ -149,10 +149,10 @@ class TestTexticle < TexticleTestCase
     x = fake_model
     x.class_eval do
       extend Texticle
-      index('uno') do
+      index :name => 'uno' do
         greco
       end
-      index('due') do
+      index :name => 'due' do
         guapo
       end
     end
@@ -170,10 +170,10 @@ class TestTexticle < TexticleTestCase
     x = fake_model
     x.class_eval do
       extend Texticle
-      trigram_index('uno') do
+      trigram_index :name => 'uno' do
         greco
       end
-      trigram_index('due') do
+      trigram_index :name => 'due' do
         guapo
       end
     end
@@ -191,10 +191,10 @@ class TestTexticle < TexticleTestCase
     x = fake_model
     x.class_eval do
       extend Texticle
-      index('uno') do
+      index :name => 'uno' do
         greco
       end
-      trigram_index('due') do
+      trigram_index :name => 'due' do
         guapo
       end
     end
@@ -212,7 +212,7 @@ class TestTexticle < TexticleTestCase
     x = fake_model
     x.class_eval do
       extend Texticle
-      trigram_index('awesome', 'GIST', 'OR') do
+      trigram_index :name => 'awesome', :type => 'GIST', :mode => 'OR' do
         name
         value
       end
@@ -227,7 +227,7 @@ class TestTexticle < TexticleTestCase
     x = fake_model
     x.class_eval do
       extend Texticle
-      trigram_index('awesome', 'GIST', 'AND') do
+      trigram_index :name => 'awesome', :type => 'GIST', :mode => 'AND' do
         name
         value
       end
@@ -242,7 +242,7 @@ class TestTexticle < TexticleTestCase
     x = fake_model
     x.class_eval do
       extend Texticle
-      trigram_index('awesome', 'GIST', 'AND') do
+      trigram_index :name => 'awesome', :type => 'GIST', :mode => 'AND' do
         name
         value
       end
