@@ -8,13 +8,13 @@ module Texticle
 
     def create
       sql = create_sql
-      sql = [sql] unless sql.respond_to? :each
+      sql = [sql] unless sql.kind_of? Array
       sql.each { |q| @model_class.connection.execute q }
     end
 
     def destroy
       sql = destroy_sql
-      sql = [sql] unless sql.respond_to? :each
+      sql = [sql] unless sql.kind_of? Array
       sql.each { |q| @model_class.connection.execute q }
     end
   end
