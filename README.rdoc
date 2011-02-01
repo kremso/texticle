@@ -73,7 +73,7 @@ Declare your trigram indexes similarly as you would declare fulltext indexes
 Texticle creates trigram index on the specified columns, using GIN index. You may override the index by specifying the index type:
 
   class Book < ActiveRecord::Base
-    trigram_index 'name', 'GIST' do
+    trigram_index :name => 'name', :type => 'GIST' do
       title
     end
   end
@@ -86,7 +86,7 @@ Finally, say hello to #tsearch:
 You may also specify the logical operator to be used between the index columns. Default is OR, which means that the searched term is comparedto all indexed columns separatly, e.g.
 
   class Book < ActiveRecord::Base
-    trigram_index 'name', 'GIST', 'OR' do
+    trigram_index :name => 'name', :type => 'GIST', :mode => 'OR' do
       title
       author
     end
@@ -97,7 +97,7 @@ You may also specify the logical operator to be used between the index columns. 
 If you use AND, then you need to provide terms to match again all indexed columns, e.g.
 
   class Book < ActiveRecord::Base
-    trigram_index 'name', 'GIST', 'AND' do
+    trigram_index :name => 'name', :type => 'GIST', :mode => 'AND' do
       title
       author
     end
