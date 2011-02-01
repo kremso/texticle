@@ -88,28 +88,29 @@ module Texticle
 
   ###
   # Create an trigram index with +name+ using +type+
-  def trigram_index name = nil, type = 'GIN', &block
+  def trigram_index name = nil, type = 'GIN', mode = 'OR', &block
     search_name = ['tsearch', name].compact.join('_')
     index_name  = [table_name, name, 'trgm_idx'].compact.join('_')
-    this_index  = TrigramIndex.new(index_name, type, self, &block)
+    this_index  = TrigramIndex.new(index_name, type, mode, self, &block)
 
     (self.trigram_indexes ||= []) << this_index
 
     # tsearch, i.e. trigram search
-    trigram_scope_lambda = lambda { |term|
-      term = "'#{term.gsub("'", "''")}'" # " because emacs ruby-mode is totally confused by this line
+    trigram_scope_lambda = lambda { |*terms|
+      raise ArgumentError, "Wrong number of arguments" if mode == 'AND' and terms.length != this_index.index_columns.length
 
-      similarities = this_index.index_columns.flatten.inject([]) do |array, index|
-        array << "similarity(#{index}, #{term})"
-      end.join(" + ")
+      similarities, conditions = [], []
 
-      conditions = this_index.index_columns.flatten.inject([]) do |array, index|
-        array << "(#{index} % #{term})"
-      end.join(" OR ")
+      this_index.index_columns.flatten.each do |index|
+        term = mode == "OR" ? terms.first : terms.shift
+        term = "'#{term.gsub("'", "''")}'" # " because emacs ruby-mode is totally confused by this line
+        similarities << "similarity(#{index}, #{term})"
+        conditions << "(#{index} % #{term})"
+      end
 
       {
-        :select => "#{table_name}.*, #{similarities} as rank",
-        :conditions => conditions,
+        :select => "#{table_name}.*, #{similarities.join(' + ')} as rank",
+        :conditions => conditions.join(" #{mode} "),
         :order => 'rank DESC'
       }
     }

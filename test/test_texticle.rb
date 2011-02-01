@@ -207,4 +207,49 @@ class TestTexticle < TexticleTestCase
     assert_match(/guapo/,       x.named_scopes[1][1].call("foo")[:select])
     assert_match(/guapo/,       x.named_scopes[1][1].call("foo")[:conditions])
   end
+
+  def test_trgm_scope_with_or
+    x = fake_model
+    x.class_eval do
+      extend Texticle
+      trigram_index('awesome', 'GIST', 'OR') do
+        name
+        value
+      end
+    end
+
+    ns = x.named_scopes.first[1].call('foo')
+    assert_match(/name % 'foo'/, ns[:conditions])
+    assert_match(/value % 'foo'/, ns[:conditions])
+  end
+
+  def test_trgm_scope_with_and
+    x = fake_model
+    x.class_eval do
+      extend Texticle
+      trigram_index('awesome', 'GIST', 'AND') do
+        name
+        value
+      end
+    end
+
+    ns = x.named_scopes.first[1].call('foo', 'boo')
+    assert_match(/name % 'foo'/, ns[:conditions])
+    assert_match(/value % 'boo'/, ns[:conditions])
+  end
+
+  def test_trgm_scope_with_and_and_wrong_parameters
+    x = fake_model
+    x.class_eval do
+      extend Texticle
+      trigram_index('awesome', 'GIST', 'AND') do
+        name
+        value
+      end
+    end
+
+    assert_raise ArgumentError do
+      x.named_scopes.first[1].call('foo')
+    end
+  end
 end

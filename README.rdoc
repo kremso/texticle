@@ -74,7 +74,7 @@ Texticle creates trigram index on the specified columns, using GIN index. You ma
 
 	class Book < ActiveRecord::Base
 		trigram_index 'name', 'GIST' do
-			name
+			title
 		end
 	end
 	
@@ -82,6 +82,28 @@ Finally, say hello to #tsearch:
 
 	Book.create :title => "_why's Poignant Guide to Ruby"
 	Book.tsearch "_whys Poignnt Gd t Rb" # => [#<Book title: "_why's Poignant Guide to Ruby">]
+
+You may also specify the logical operator to be used between the index columns. Default is OR, which means that the searched term is comparedto all indexed columns separatly, e.g.
+
+	class Book < ActiveRecord::Base
+		trigram_index 'name', 'GIST', 'OR' do
+			title
+            author
+		end
+	end
+
+	Book.tsearch "_whys Poignnt Gd t Rb" # => [#<Book title: "_why's Poignant Guide to Ruby">]
+
+If you use AND, then you need to provide terms to match again all indexed columns, e.g.
+
+	class Book < ActiveRecord::Base
+		trigram_index 'name', 'GIST', 'AND' do
+			title
+            author
+		end
+	end
+
+	Book.tsearch "_whys Poignnt Gd t Rb", "_whi" # => [#<Book title: "_why's Poignant Guide to Ruby", author: "_why">]
 	
 Trigram searching is still in beta, so expect the API to change and/or improve.
 
