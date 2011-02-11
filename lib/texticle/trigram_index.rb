@@ -30,7 +30,7 @@ module Texticle
 
     def destroy_sql
       indexes = @model_class.connection.execute(<<-SQL).select { |idx| idx =~ /trgm_idx/ }
-        SELECT indexname FROM pg_indexes WHERE table_name = '#{@model_class.table_name}'
+        SELECT indexname FROM pg_indexes WHERE tablename = '#{@model_class.table_name}'
       SQL
 
       indexes.map { |idx| "DROP INDEX #{idx}" }
