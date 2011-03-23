@@ -127,6 +127,13 @@ module Texticle
     (full_text_indexes || []) + (trigram_indexes || [])
   end
 
+  def with_similarity_limit(similarity_limit)
+    original_similarity_limit = connection.execute("SELECT show_limit()").first["show_limit"]
+    connection.execute "SELECT set_limit(#{similarity_limit})"
+    yield
+    connection.execute "SELECT set_limit(#{original_similarity_limit})"
+  end
+
   private
 
   def create_named_scope name, scope_lambda
