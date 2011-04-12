@@ -69,19 +69,21 @@ module Texticle
 
     (self.full_text_indexes ||= []) << this_index
 
-    scope_lambda = lambda { |term|
+    scope_lambda = lambda { |term, *options|
       # Let's extract the individual terms to allow for quoted and wildcard terms.
       term = term.scan(/"([^"]+)"|(\S+)/).flatten.compact.map do |lex|
         lex.gsub!(' ', '\\ ')
         lex =~ /(.+)\*\s*$/ ? "#{$1}:*" : lex
       end.join(' & ')
 
+      order = (options.first == :no_order ? nil : 'rank DESC')
+
       {
         :select => "#{table_name}.*, ts_rank_cd((#{this_index.to_s}),
           to_tsquery(#{connection.quote(dictionary)}, #{connection.quote(term)})) as rank",
         :conditions =>
           ["#{this_index.to_s} @@ to_tsquery(?,?)", dictionary, term],
-        :order => 'rank DESC'
+        :order => order
       }
     }
 
