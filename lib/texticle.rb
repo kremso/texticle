@@ -72,8 +72,9 @@ module Texticle
     scope_lambda = lambda { |term, *options|
       # Let's extract the individual terms to allow for quoted and wildcard terms.
       term = term.scan(/"([^"]+)"|(\S+)/).flatten.compact.map do |lex|
-        [' ', ':', '(', ')', '&', '|'].each do |jinx|
+        [' ', ':', '(', ')', '|'].each do |jinx|
           lex.gsub!("#{jinx}", "\\#{jinx}")
+          lex.gsub!('&', '*')
         end
         lex =~ /(.+)\*\s*$/ ? "#{$1}:*" : lex
       end.join(' & ')
